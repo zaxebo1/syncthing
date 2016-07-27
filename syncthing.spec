@@ -1,9 +1,9 @@
 %global debug_package %{nil}
 
 Name:           syncthing
-Version:        0.13.4
+Version:        0.14.2
 Release:        1%{?dist}
-Summary:        Syncthing
+Summary:        syncthing file synchronisation
 License:        MIT
 URL:            http://syncthing.net/
 
@@ -18,19 +18,20 @@ BuildRequires:  systemd
 ExclusiveArch:  %{go_arches}
 
 
-BuildRequires:  golang-github-rcrowley-go-metrics-devel
-BuildRequires:  golang-github-syndtr-goleveldb-devel
-BuildRequires:  golang-github-thejerf-suture-devel
-BuildRequires:  golang-github-vitrun-qart-devel
-BuildRequires:  golang-golangorg-crypto-devel
-
-Recommends:     syncthing-inotify
-
-
 %description
 Syncthing replaces Dropbox and BitTorrent Sync with something open, trustworthy and decentralized. Your data is your data alone and you deserve to choose where it is stored, if it is shared with some third party and how it's transmitted over the Internet.
 
 Using syncthing, that control is returned to you.
+
+
+%package        devel
+Summary:        syncthing file synchronisation
+%description    devel
+Syncthing replaces Dropbox and BitTorrent Sync with something open, trustworthy and decentralized. Your data is your data alone and you deserve to choose where it is stored, if it is shared with some third party and how it's transmitted over the Internet.
+
+Using syncthing, that control is returned to you.
+
+This package contains the syncthing source files, which are needed as dependency for building packages using syncthing.
 
 
 %prep
@@ -39,19 +40,26 @@ Using syncthing, that control is returned to you.
 
 %build
 mkdir -p ./_build/src/github.com/syncthing
-ln -s $(pwd) ./_build/src/github.com/syncthing/syncthing
+mkdir -p ./_build/src/golang.org/x
 
-export GOROOT=/usr/lib/golang
-export GOPATH=$(pwd)/_build
 
-cp -R %{gopath}/* $GOPATH/
+BUILDDIR=$(pwd)
+pushd _build/src/github.com/syncthing
+ln -s $BUILDDIR ./syncthing
+popd
 
-go run build.go -no-upgrade
+cp -R vendor/github.com/* _build/src/github.com/
+cp -R vendor/golang.org/x/* _build/src/golang.org/x/
+
+export GOPATH=$(pwd)/_build:%{gopath}
+
+#go run build.go -no-upgrade
+./build.sh noupgrade
 
 
 %install
 install -d %{buildroot}%{_bindir}
-install -p -m 0755 bin/* %{buildroot}%{_bindir}/
+install -p -m 0755 ./syncthing %{buildroot}%{_bindir}/
 
 mkdir -p %{buildroot}/usr/lib/systemd/system
 mkdir -p %{buildroot}/usr/lib/systemd/user
@@ -59,6 +67,10 @@ mkdir -p %{buildroot}/usr/lib/systemd/user
 install -p -m 0644 etc/linux-systemd/system/syncthing@.service %{buildroot}/usr/lib/systemd/system/
 install -p -m 0644 etc/linux-systemd/system/syncthing-resume.service %{buildroot}/usr/lib/systemd/system/
 install -p -m 0644 etc/linux-systemd/user/syncthing.service %{buildroot}/usr/lib/systemd/user/
+
+mkdir -p %{buildroot}/%{_datadir}/gocode/src/github.com/syncthing/syncthing
+cp -R cmd %{buildroot}/%{_datadir}/gocode/src/github.com/syncthing/syncthing/
+cp -R lib %{buildroot}/%{_datadir}/gocode/src/github.com/syncthing/syncthing/
 
 
 %clean
@@ -74,7 +86,38 @@ rm -rf %{buildroot}
 /usr/lib/systemd/system/syncthing-resume.service
 
 
+%files devel
+%{_datadir}/gocode/src/github.com/syncthing
+
+
 %changelog
+* Tue Jul 26 2016 Fabio Valentini <decathorpe@gmail.com> - 0.14.2-1
+- Update to version 0.14.2.
+
+* Tue Jul 19 2016 Fabio Valentini <decathorpe@gmail.com> - 0.14.0-1
+- Update to version 0.14.0.
+
+* Sun Jul 03 2016 Fabio Valentini <decathorpe@gmail.com> - 0.13.10-1
+- Update to version 0.13.10.
+
+* Sun Jun 26 2016 Fabio Valentini <decathorpe@gmail.com> - 0.13.9-1
+- Update to version 0.13.9.
+
+* Fri Jun 17 2016 Fabio Valentini <decathorpe@gmail.com>
+- Build -devel subpackage.
+
+* Fri Jun 17 2016 Fabio Valentini <decathorpe@gmail.com> - 0.13.7-1
+- Update to version 0.13.7.
+
+* Sun Jun 12 2016 Fabio Valentini <decathorpe@gmail.com> - 0.13.6-1
+- Update to version 0.13.6.
+
+* Tue Jun 07 2016 Fabio Valentini <decathorpe@gmail.com> - 0.13.5-1
+- Update to version 0.13.5.
+
+* Fri Jun 03 2016 Fabio Valentini <decathorpe@gmail.com> - 0.13.5-1
+- Update to version 0.13.5.
+
 * Fri May 27 2016 Fabio Valentini <decathorpe@gmail.com> - 0.13.4-1
 - Update to version 0.13.4.
 
