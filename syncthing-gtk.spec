@@ -1,7 +1,7 @@
 %define debug_package %{nil}
 
 Name:           syncthing-gtk
-Version:        0.9.0.2
+Version:        0.9.1
 Release:        1%{?dist}
 Summary:        Syncthing GTK+ GUI
 License:        GPLv2
@@ -17,6 +17,7 @@ Requires:       hicolor-icon-theme
 
 Requires:       psmisc
 Requires:       pygobject2
+Requires:       python-gobject
 Requires:       python-dateutil
 
 %if 0%{?fedora}
@@ -93,6 +94,12 @@ fi
 
 
 %changelog
+* Tue Jul 19 2016 Fabio Valentini <decathorpe@gmail.com> - 0.9.1-1
+- Update to version 0.9.1.
+
+* Fri Jun 17 2016 Fabio Valentini <decathorpe@gmail.com> - 0.9.0.3-1
+- Update to version 0.9.0.3.
+
 * Tue May 24 2016 Fabio Valentini <decathorpe@gmail.com> - 0.9.0.2-1
 - Update to version 0.9.0.2.
 
